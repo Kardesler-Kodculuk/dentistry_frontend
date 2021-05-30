@@ -1,0 +1,41 @@
+{
+  "compilerOptions": {
+    "target": "es6",
+    "lib": [
+      "es6",
+      "dom",
+      "dom.iterable",
+      "esnext"
+    ],
+    "allowJs": true,
+    "skipLibCheck": true,
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "strict": true,
+    "forceConsistentCasingInFileNames": true,
+    "noFallthroughCasesInSwitch": true,
+    "module": "esnext",
+    "moduleResolution": "node",
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "noEmit": true,
+    "jsx": "react-jsx",
+    "noImplicitAny": true,
+    "noImplicitThis": true,
+    "strictNullChecks": true,
+    "baseUrl": "./src",
+    "paths": {
+      "@dentistry/components":["components"],
+      "@dentistry/contexts":["contexts"],
+      "@dentistry/hooks":["hooks"],
+      "@dentistry/pages":["pages"],
+      "@dentistry/interfaces":["interfaces"],
+      "@dentistry/services":["services"],
+      "@dentistry/utils":["utils"],
+    }
+  },
+  "include": [
+    "src/**/*",
+    "test/*"
+  ]
+}
