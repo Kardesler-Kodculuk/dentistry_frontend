@@ -49,7 +49,7 @@ export function AppointmentSession() {
 	const handleEnd = (event: React.ChangeEvent<{ value: unknown }>) => {
 		setEndID(event.target.value as number)
 	}
-	
+
 	const clear = () => {
 		if (appointment?.intervals) {
 			setStartID(0)
@@ -59,40 +59,34 @@ export function AppointmentSession() {
 
 	return (
 		<div>
-			<CustomMenuItem name="Session" clearCallback={clear}>
-				<Box display="flex" justifyContent="center">
-					<Select
-						value={startID}
-						onChange={handleStart}
-						className={classes.selection}>
-						{appointment.intervals.values
-							.filter(
-								(interval, i) => interval.time_id < appointment.intervals.values.length - 1
-							)
-							.map((interval) => (
-								<MenuItem
-									value={interval.time_id}
-									key={"menu_session_selection_start_" + interval.time_id}>
-									{interval.name}
-								</MenuItem>
-							))}
-					</Select>
-					<Select
-						value={endID}
-						onChange={handleEnd}
-						className={classes.selection}>
-						{appointment.intervals.values
-							.filter((session, i) => session.time_id > startID)
-							.map((session) => (
-								<MenuItem
-									value={session.time_id}
-									key={"menu_session_selection_end_" + session.time_id}>
-									{session.name}
-								</MenuItem>
-							))}
-					</Select>
-				</Box>
-			</CustomMenuItem>
+			{appointment?.information.values["all"] === "" ? (
+				<CustomMenuItem name="Session" clearCallback={clear}>
+					<Box display="flex" justifyContent="center">
+						<Select value={startID} onChange={handleStart} className={classes.selection}>
+							{appointment.intervals.values
+								.filter((interval, i) => interval.time_id < appointment.intervals.values.length - 1)
+								.map((interval) => (
+									<MenuItem
+										value={interval.time_id}
+										key={"menu_session_selection_start_" + interval.time_id}>
+										{interval.name}
+									</MenuItem>
+								))}
+						</Select>
+						<Select value={endID} onChange={handleEnd} className={classes.selection}>
+							{appointment.intervals.values
+								.filter((session, i) => session.time_id > startID)
+								.map((session) => (
+									<MenuItem
+										value={session.time_id}
+										key={"menu_session_selection_end_" + session.time_id}>
+										{session.name}
+									</MenuItem>
+								))}
+						</Select>
+					</Box>
+				</CustomMenuItem>
+			) : null}
 		</div>
 	)
 }

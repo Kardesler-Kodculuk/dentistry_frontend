@@ -111,7 +111,6 @@ export function AppointmentProvider(props: props) {
 	useEffect(() => {
 		async function createStrings() {
 			setQueryString([])
-			setTotalCost(0)
 			appointmentQuery.clear()
 			appointments.clear()
 			setQueryLoad(false)
@@ -121,7 +120,8 @@ export function AppointmentProvider(props: props) {
 			let end = new Date(date.values["start"])
 			end.setHours(time.values["end"][0], time.values["end"][1], 0, 0)
 			let absEnd = new Date(date.values["end"])
-			while (end <= absEnd) {
+			absEnd.setDate(absEnd.getDate() + 1)
+			while (end < absEnd) {
 				let queryString = `?`
 				if (information.values["all"] === "") {
 					queryString += `start_date=${start.getTime() / 1000}&stop_date=${end.getTime() / 1000}`
@@ -139,7 +139,11 @@ export function AppointmentProvider(props: props) {
 				if (information.values["name"] !== "") {
 					queryString += `&patient_name=${escape(information.values["name"])}`
 				}
+
 				queryStrings.push(queryString)
+				if (information.values["all"] !== "") {
+					break
+				}
 				start = new Date(start)
 				start.setDate(start.getDate() + 1)
 				end = new Date(end)
@@ -158,6 +162,7 @@ export function AppointmentProvider(props: props) {
 		reset,
 	])
 	const fetchTotalCost = async (queryString: string[]) => {
+		setTotalCost(0)
 		let res = queryString.map(
 			async (queryString) =>
 				await query?.get<{ cost: number }>("costs" + queryString).then((data) => data)
@@ -165,12 +170,11 @@ export function AppointmentProvider(props: props) {
 
 		let data = await Promise.all(res)
 		let sum = data
-			.map((c) => c?.cost)
+			.map((c) => Number(c?.cost))
 			.reduce((a, b) => {
-				if (a && b) {
-					return a + b
-				}
+				return a + b
 			})
+
 		if (sum) {
 			setTotalCost(sum / 100)
 		}
