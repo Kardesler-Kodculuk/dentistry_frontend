@@ -12,6 +12,7 @@ const useStyles = makeStyles((theme) => ({
 	},
 }))
 export function AppointmentInformation() {
+	
 	const appointment = useAppointment()
 	const classes = useStyles()
 	return (
@@ -19,7 +20,6 @@ export function AppointmentInformation() {
 			name="Information"
 			clearCallback={() => {
 				appointment?.information.setValues("name", "")
-				appointment?.information.setValues("cell", "")
 			}}>
 			<Box className={classes.container} display="flex" justifyContent="center">
 				<TextField
@@ -28,13 +28,6 @@ export function AppointmentInformation() {
 					label="Name"
 					value={appointment?.information.values["name"]}
 					onChange={(e) => appointment?.information.setValues("name", e.target.value)}
-				/>
-				<TextField
-					required
-					fullWidth
-					label="Cell"
-					value={appointment?.information.values["cell"]}
-					onChange={(e) => appointment?.information.setValues("cell", e.target.value)}
 				/>
 			</Box>
 		</CustomMenuItem>

@@ -1,6 +1,5 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import { useAppointment } from "@dentistry/services"
-import { CalculateDuration } from "@dentistry/utils"
 import { AppointmentInfo } from "@dentistry/interfaces"
 import { CustomDialog } from "@dentistry/components"
 import { useForm } from "@dentistry/hooks"
@@ -18,7 +17,7 @@ import {
 import DateFnsUtils from "@date-io/date-fns"
 import { MuiPickersUtilsProvider, KeyboardDatePicker } from "@material-ui/pickers"
 import { useEffect, useState } from "react"
-import { CalculateOpenSessions } from "@dentistry/utils"
+import { CalculateOpenSessions, CalculateDuration } from "@dentistry/utils"
 import { Time } from "@dentistry/interfaces"
 const useStyles = makeStyles((theme) => ({
 	doubleInput: {
@@ -53,7 +52,9 @@ export function AppointmentEdit(props: props) {
 	const classes = useStyles()
 	const appointment = useAppointment()
 	const [open, setOpen] = useState<boolean>(false)
+	const [current, setCurrent] = useState<string>("")
 	const [load, setLoad] = useState<boolean>(false)
+	const [start, setStart] = useState<{ time: Time; ends: Time[] } | undefined>()
 	const [doctorID, setDoctorID] = useState<number>(0)
 	const [operationID, setOperationID] = useState<number[]>([])
 	const [startID, setStartID] = useState<number>(0)
@@ -81,8 +82,14 @@ export function AppointmentEdit(props: props) {
 			props.editedAppointment &&
 			props.editedAppointment.patient &&
 			props.editedAppointment.doctor &&
-			props.editedAppointment.operations
+			props.editedAppointment.operations &&
+			appointment?.intervals
 		) {
+			let curr = CalculateDuration(props.editedAppointment, appointment?.intervals.values)
+			console.log(curr)
+			if (curr) {
+				setCurrent(curr)
+			}
 			info.setValues("name", "" + props.editedAppointment.patient?.patient_name)
 			info.setValues("cell", "" + props.editedAppointment.patient?.phone_number)
 			info.setValues("notes", "" + props.editedAppointment.notes)
@@ -97,6 +104,7 @@ export function AppointmentEdit(props: props) {
 			date.setValues("date", new Date(props.editedAppointment.date_))
 			setDoctorID(props.editedAppointment.doctor?.doctor_id)
 			setOperationID([...props.editedAppointment.operations.map((e) => e.diagnosis_id)])
+			setLoad(!load)
 		}
 	}, [props.editedAppointment])
 
@@ -108,23 +116,23 @@ export function AppointmentEdit(props: props) {
 			}
 		}
 		emptySlots()
-	}, [date.values, appointment?.appointments.values, doctorID, props.editedAppointment])
+	}, [load, date.values, doctorID])
 
 	useEffect(() => {
 		if (slots.length > 0) {
-			setStartID(slots[0].time.time_id)
-			setLoad(!load)
+			let start = slots[0]
+			setStart(start)
 		}
 	}, [slots])
 
 	useEffect(() => {
-		let ends = slots.find((slot) => slot.time.time_id === startID)?.ends
-		if (ends !== undefined) {
-			setSlotEnds([...ends])
+		if (start) {
+			setStartID(start.time.time_id)
+			setSlotEnds([...start.ends])
 		} else {
 			setSlotEnds([])
 		}
-	}, [startID, load])
+	}, [start])
 
 	useEffect(() => {
 		if (slotEnds[0]) {
@@ -138,6 +146,7 @@ export function AppointmentEdit(props: props) {
 
 	const editHandler = (e: React.SyntheticEvent): void => {
 		e.preventDefault()
+
 		let date_ = new Date(date.values["date"])
 		let start = appointment?.intervals.values.find((e) => e.time_id === startID)?.timeValues
 
@@ -207,6 +216,7 @@ export function AppointmentEdit(props: props) {
 					</Box>
 
 					<Select
+						disabled
 						label="Operations"
 						value={operationID}
 						onChange={operationHandler}
@@ -283,14 +293,26 @@ export function AppointmentEdit(props: props) {
 							No slots left Today
 						</Box>
 					)}
-					<TextField
-						disabled
-						className={classes.doubleInput}
-						fullWidth
-						label="Price"
-						value={info.values["price"]}
-						onChange={(e) => info.setValues("price", e.target.value)}
-					/>
+					<Box display="flex" alignItems="flex-end">
+						<TextField
+							disabled
+							className={classes.doubleInput}
+							fullWidth
+							label="Price"
+							value={info.values["price"]}
+							onChange={(e) => info.setValues("price", e.target.value)}
+						/>
+						{current !== "" ? (
+							<TextField
+								disabled
+								className={classes.doubleInput}
+								fullWidth
+								label="Current Time"
+								value={current}
+							/>
+						) : null}
+					</Box>
+
 					<TextField
 						className={classes.input}
 						fullWidth

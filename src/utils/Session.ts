@@ -23,6 +23,7 @@ export function CalculateDuration(value: AppointmentInfo, intervals: Time[]) {
 
 
 export function CalculateOpenSessions(values: AppointmentInfo[], intervals: Time[], self?: AppointmentInfo) {
+
     let empty: Time[] = [...intervals]
     let fill: Time[] = [...intervals]
     if (self) {

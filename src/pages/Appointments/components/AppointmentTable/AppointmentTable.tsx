@@ -34,6 +34,14 @@ export function AppointmentTable() {
 	const appointments = useAppointment()
 	const [edit, setEdit] = useState<AppointmentInfo | null>(null)
 	const [open, setOpen] = useState<boolean>(false)
+	const [date, setDate] = useState<Date>(new Date())
+
+	useEffect(() => {
+		let date_ = new Date()
+		date_.setHours(0, 0, 0, 0)
+		setDate(date_)
+	}, [open])
+
 	const head = [
 		"Doctor",
 		"Operations",
@@ -86,12 +94,13 @@ export function AppointmentTable() {
 							<TableCell>{CalculateDuration(appointment, appointments.intervals.values)}</TableCell>
 							<TableCell>{appointment.patient?.phone_number}</TableCell>
 							<TableCell>
-								{"$"+appointment?.operations
-									?.map((e) => e.diagnosis_price / 100)
-									.reduce((a, b) => a + b, 0)}
+								{"$" +
+									appointment?.operations
+										?.map((e) => e.diagnosis_price / 100)
+										.reduce((a, b) => a + b, 0)}
 							</TableCell>
 							<TableCell>
-								{appointment.date_.getTime() > new Date().getTime() ? (
+								{appointment.date_.getTime() > date.getTime() ? (
 									<IconButton onClick={() => handleRow(appointment)}>
 										<EditIcon />
 									</IconButton>

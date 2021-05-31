@@ -45,6 +45,7 @@ export function AppointmentProvider(props: props) {
 		initials: {
 			name: "",
 			cell: "",
+			all: "",
 		},
 	})
 
@@ -121,7 +122,10 @@ export function AppointmentProvider(props: props) {
 			end.setHours(time.values["end"][0], time.values["end"][1], 0, 0)
 			let absEnd = new Date(date.values["end"])
 			while (end <= absEnd) {
-				let queryString = `?start_date=${start.getTime() / 1000}&stop_date=${end.getTime() / 1000}`
+				let queryString = `?`
+				if (information.values["all"] === "") {
+					queryString += `start_date=${start.getTime() / 1000}&stop_date=${end.getTime() / 1000}`
+				}
 				if (selectedDoctors.values.length > 0) {
 					queryString += `&doctor_id=${selectedDoctors.values
 						.map((doctor) => doctor.doctor_id)
@@ -132,18 +136,15 @@ export function AppointmentProvider(props: props) {
 						.map((operation) => operation.diagnosis_id)
 						.join("%")}`
 				}
-				if (information.values["name"] !== "" && information.values["cell"] !== "") {
-					let patient = await createPatient(information.values["name"], information.values["cell"])
-					if (patient) {
-						queryString += `&patient_id=${patient?.patient_id}`
-					}
+				if (information.values["name"] !== "") {
+					queryString += `&patient_name=${escape(information.values["name"])}`
 				}
 				queryStrings.push(queryString)
-
 				start = new Date(start)
 				start.setDate(start.getDate() + 1)
 				end = new Date(end)
 				end.setDate(end.getDate() + 1)
+				console.log(queryString)
 			}
 			setQueryString(queryStrings)
 			setQueryStringLoad(true)
@@ -196,9 +197,6 @@ export function AppointmentProvider(props: props) {
 		})
 		return queryData
 	}
-	useEffect(() => {
-		console.log(totalCost)
-	}, [totalCost])
 	useEffect(() => {
 		async function loadQueries() {
 			if (queryStringLoad) {
@@ -259,7 +257,11 @@ export function AppointmentProvider(props: props) {
 			phone_number: cell,
 		})
 	}
-
+	const queryPatient = async (name: string) => {
+		return query?.postBody<{ patient_id: number }>("patients", {
+			patient_name: name,
+		})
+	}
 	const addAppointment = async (
 		doctor_id: number,
 		name: string,
