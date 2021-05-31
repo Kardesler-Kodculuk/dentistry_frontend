@@ -189,7 +189,7 @@ export function AppointmentAdd() {
 							required
 							className={classes.doubleInput}
 							fullWidth
-							label="Cell"
+							label="Phone Number"
 							value={info.values["cell"]}
 							onChange={(e) => info.setValues("cell", e.target.value)}
 						/>
