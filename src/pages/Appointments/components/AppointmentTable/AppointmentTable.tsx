@@ -34,7 +34,17 @@ export function AppointmentTable() {
 	const appointments = useAppointment()
 	const [edit, setEdit] = useState<AppointmentInfo | null>(null)
 	const [open, setOpen] = useState<boolean>(false)
-	const head = ["Doctor", "Operations", "Full Name", "Date", "Session", "Communication", "", ""]
+	const head = [
+		"Doctor",
+		"Operations",
+		"Full Name",
+		"Date",
+		"Session",
+		"Communication",
+		"Cost",
+		"",
+		"",
+	]
 	const handleOpen = () => {
 		setOpen(true)
 	}
@@ -75,6 +85,11 @@ export function AppointmentTable() {
 							<TableCell>{appointment.date_.toLocaleDateString("en-GB")}</TableCell>
 							<TableCell>{CalculateDuration(appointment, appointments.intervals.values)}</TableCell>
 							<TableCell>{appointment.patient?.phone_number}</TableCell>
+							<TableCell>
+								{"$"+appointment?.operations
+									?.map((e) => e.diagnosis_price / 100)
+									.reduce((a, b) => a + b, 0)}
+							</TableCell>
 							<TableCell>
 								{appointment.date_.getTime() > new Date().getTime() ? (
 									<IconButton onClick={() => handleRow(appointment)}>

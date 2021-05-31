@@ -30,32 +30,30 @@ export async function post<T>(endPoint: string, ID: number | string): Promise<T>
 		.then((res) => res.data)
 }
 
-export async function deleteID<T>(endPoint: string, ID: number | string): Promise<T> {
+export async function deleteID<T>(endPoint: string): Promise<T> {
 	return await axios
-		.delete<Promise<T>>(`${API?.url}${endPoint}/${ID}`, { withCredentials: true })
+		.delete<Promise<T>>(`${API?.url}${endPoint}`, { withCredentials: true })
 		.then((res) => res.data)
 }
-export async function patchID<T>(
+export async function pathBody<T>(
 	endPoint: string,
-	ID: number | string,
 	body: { [key: string]: string | number[] | number }
 ): Promise<T> {
-	console.log(`${API?.url}${endPoint}/${ID}`)
+	console.log(`${API?.url}${endPoint}}`)
 	console.log(body)
 	return await axios
-		.patch<Promise<T>>(`${API?.url}${endPoint}/${ID}`, body, { withCredentials: true })
+		.patch<Promise<T>>(`${API?.url}${endPoint}`, body, { withCredentials: true })
 		.then((res) => res.data)
 }
 
 export async function postBody<T>(
 	endPoint: string,
-	ID: number | string,
 	body: { [key: string]: string | number[] | number }
 ): Promise<T> {
 	console.log(`${API?.url}${endPoint}`)
 	console.log(body)
 	return await axios
-		.post<Promise<T>>(`${API?.url}${endPoint}/${ID}`, body, { withCredentials: true })
+		.post<Promise<T>>(`${API?.url}${endPoint}`, body, { withCredentials: true })
 		.then((res) => res.data)
 }
 
@@ -66,7 +64,7 @@ export const QueryProvider = (props: props) => {
 		post,
 		postBody,
 		deleteID,
-		patchID,
+		pathBody,
 	}
 
 	return <QueryContext.Provider value={value}>{props.children}</QueryContext.Provider>

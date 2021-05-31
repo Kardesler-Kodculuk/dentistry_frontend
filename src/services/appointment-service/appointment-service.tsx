@@ -109,6 +109,7 @@ export function AppointmentProvider(props: props) {
 
 	useEffect(() => {
 		async function createStrings() {
+			setQueryString([])
 			setTotalCost(0)
 			appointmentQuery.clear()
 			appointments.clear()
@@ -170,10 +171,8 @@ export function AppointmentProvider(props: props) {
 					return a + b
 				}
 			})
-		console.log(data)
 		if (sum) {
-			console.log(sum)
-			setTotalCost(sum/100)
+			setTotalCost(sum / 100)
 		}
 	}
 
@@ -255,7 +254,7 @@ export function AppointmentProvider(props: props) {
 	}
 
 	const createPatient = async (name: string, cell: string) => {
-		return query?.postBody<{ patient_id: number }>("patients", "", {
+		return query?.postBody<{ patient_id: number }>("patients", {
 			patient_name: name,
 			phone_number: cell,
 		})
@@ -272,7 +271,7 @@ export function AppointmentProvider(props: props) {
 	) => {
 		let patient = await createPatient(name, cell)
 		if (patient) {
-			let id = await query?.postBody<number>("appointments", "", {
+			let id = await query?.postBody<number>("appointments", {
 				doctor_id: doctor_id,
 				patient_id: patient.patient_id,
 				diagnosis_ids: operation_ids,
@@ -294,7 +293,7 @@ export function AppointmentProvider(props: props) {
 		duration: number,
 		notes: string
 	) => {
-		let res = await query?.patchID<number>("appointments", id, {
+		let res = await query?.pathBody<number>("appointments/" + id, {
 			doctor_id: doctor_id,
 			patient_id: patient_id,
 			date_: date.getTime() / 1000,
@@ -305,7 +304,7 @@ export function AppointmentProvider(props: props) {
 		return res
 	}
 	const deleteAppointment = async (id: number) => {
-		let res = await query?.deleteID<number>("appointments", id)
+		let res = await query?.deleteID<number>("appointments/" + id)
 		setReset(!reset)
 		return res
 	}

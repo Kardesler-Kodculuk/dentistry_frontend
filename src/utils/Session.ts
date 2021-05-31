@@ -22,10 +22,14 @@ export function CalculateDuration(value: AppointmentInfo, intervals: Time[]) {
 }
 
 
-export function CalculateOpenSessions(values: AppointmentInfo[], intervals: Time[]) {
+export function CalculateOpenSessions(values: AppointmentInfo[], intervals: Time[], self?: AppointmentInfo) {
     let empty: Time[] = [...intervals]
     let fill: Time[] = [...intervals]
-    values.map((e) => { empty = [...calculateInterval(e, empty)]; return 1 })
+    if (self) {
+        values.map((e) => { if (e.appointment_id !== self.appointment_id) { empty = [...calculateInterval(e, empty)] }; return 1 })
+    } else {
+        values.map((e) => { empty = [...calculateInterval(e, empty)]; return 1 })
+    }
     let slots: { time: Time, ends: Time[] }[] = []
     let slot = empty.shift()
     let i = 0

@@ -109,6 +109,7 @@ export function AppointmentAdd() {
 		let start = appointment?.intervals.values.find((e) => e.time_id === startID)?.timeValues
 		if (start) {
 			date_.setHours(start[0], start[1], 0, 0)
+			console.log(date_)
 			appointment?.addAppointment(
 				doctorID,
 				info.values["name"],
@@ -239,26 +240,39 @@ export function AppointmentAdd() {
 							/>
 						</MuiPickersUtilsProvider>
 					</Box>
-					<Box display="flex" alignItems="flex-end">
-						<Select required value={startID} onChange={handleStart} className={classes.doubleInput}>
-							{slots.map((slot) => (
-								<MenuItem
-									value={slot.time.time_id}
-									key={"add_session_selection_start_" + slot.time.time_id}>
-									<Chip size="small" label={slot.ends.length} className={classes.chip} />
-									{slot.time.name}
-								</MenuItem>
-							))}
-						</Select>
+					{slots.length > 0 ? (
+						<Box display="flex" alignItems="flex-end">
+							<Select
+								required
+								value={startID}
+								onChange={handleStart}
+								className={classes.doubleInput}>
+								{slots.map((slot) => (
+									<MenuItem
+										value={slot.time.time_id}
+										key={"add_session_selection_start_" + slot.time.time_id}>
+										<Chip size="small" label={slot.ends.length} className={classes.chip} />
+										{slot.time.name}
+									</MenuItem>
+								))}
+							</Select>
 
-						<Select required value={endID} onChange={handleEnd} className={classes.doubleInput}>
-							{slotEnds.map((slot) => (
-								<MenuItem value={slot.time_id} key={"add_session_selection_start_" + slot.time_id}>
-									{slot.name}
-								</MenuItem>
-							))}
-						</Select>
-					</Box>
+							<Select required value={endID} onChange={handleEnd} className={classes.doubleInput}>
+								{slotEnds.map((slot) => (
+									<MenuItem
+										value={slot.time_id}
+										key={"add_session_selection_start_" + slot.time_id}>
+										{slot.name}
+									</MenuItem>
+								))}
+							</Select>
+						</Box>
+					) : (
+						<Box display="flex" alignItems="flex-end" justifyContent="center" margin={3}>
+							No slots left
+						</Box>
+					)}
+
 					<TextField
 						className={classes.input}
 						fullWidth

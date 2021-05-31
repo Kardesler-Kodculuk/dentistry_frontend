@@ -103,12 +103,12 @@ export function AppointmentEdit(props: props) {
 	useEffect(() => {
 		async function emptySlots() {
 			let res = await appointment?.emptyTimeSlots(date.values["date"], doctorID)
-			if (res && appointment?.intervals) {
-				setSlots(CalculateOpenSessions(res, appointment?.intervals.values))
+			if (res && appointment?.intervals && props.editedAppointment) {
+				setSlots(CalculateOpenSessions(res, appointment?.intervals.values, props.editedAppointment))
 			}
 		}
 		emptySlots()
-	}, [date.values, appointment?.appointments.values, doctorID])
+	}, [date.values, appointment?.appointments.values, doctorID, props.editedAppointment])
 
 	useEffect(() => {
 		if (slots.length > 0) {
@@ -229,7 +229,7 @@ export function AppointmentEdit(props: props) {
 								variant="inline"
 								format="dd/MM/yyyy"
 								margin="normal"
-								id="date-picker-inline3"
+								id="date-picker-inline4"
 								value={date.values["date"]}
 								onChange={dateHandler}
 								KeyboardButtonProps={{
@@ -251,26 +251,38 @@ export function AppointmentEdit(props: props) {
 							))}
 						</Select>
 					</Box>
-					<Box display="flex" alignItems="flex-end">
-						<Select required value={startID} onChange={handleStart} className={classes.doubleInput}>
-							{slots.map((slot) => (
-								<MenuItem
-									value={slot.time.time_id}
-									key={"add_session_selection_start_" + slot.time.time_id}>
-									<Chip size="small" label={slot.ends.length} className={classes.chip} />
-									{slot.time.name}
-								</MenuItem>
-							))}
-						</Select>
+					{slots.length > 0 ? (
+						<Box display="flex" alignItems="flex-end">
+							<Select
+								required
+								value={startID}
+								onChange={handleStart}
+								className={classes.doubleInput}>
+								{slots.map((slot) => (
+									<MenuItem
+										value={slot.time.time_id}
+										key={"add_session_selection_start_" + slot.time.time_id}>
+										<Chip size="small" label={slot.ends.length} className={classes.chip} />
+										{slot.time.name}
+									</MenuItem>
+								))}
+							</Select>
 
-						<Select required value={endID} onChange={handleEnd} className={classes.doubleInput}>
-							{slotEnds.map((slot) => (
-								<MenuItem value={slot.time_id} key={"add_session_selection_start_" + slot.time_id}>
-									{slot.name}
-								</MenuItem>
-							))}
-						</Select>
-					</Box>
+							<Select required value={endID} onChange={handleEnd} className={classes.doubleInput}>
+								{slotEnds.map((slot) => (
+									<MenuItem
+										value={slot.time_id}
+										key={"add_session_selection_start_" + slot.time_id}>
+										{slot.name}
+									</MenuItem>
+								))}
+							</Select>
+						</Box>
+					) : (
+						<Box display="flex" alignItems="flex-end" justifyContent="center" margin={3}>
+							No slots left Today
+						</Box>
+					)}
 					<TextField
 						disabled
 						className={classes.doubleInput}
