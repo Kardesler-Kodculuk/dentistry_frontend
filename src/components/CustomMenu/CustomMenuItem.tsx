@@ -12,8 +12,8 @@ import {
 	ListItemIcon,
 } from "@material-ui/core"
 
-import { ExpandLess, ExpandMore, ClearAll } from "@material-ui/icons"
 
+import { ExpandLess, ExpandMore, DeleteSweep } from "@material-ui/icons"
 const useStyles = makeStyles((theme) => ({
 	item: {
 		fontSize: "0.7em",
@@ -36,12 +36,13 @@ export function CustomMenuItem(props: props) {
 	return (
 		<div>
 			<ListItem className={classes.item}>
+				<ListItemText primary={props.name} className={classes.item} />
 				<ListItemIcon>
-					<IconButton edge="start" onClick={props.clearCallback}>
-						<ClearAll />
+					<IconButton edge="end" onClick={props.clearCallback}>
+						
+						<DeleteSweep />
 					</IconButton>
 				</ListItemIcon>
-				<ListItemText primary={props.name} className={classes.item} />
 				<ListItemSecondaryAction>
 					<IconButton edge="end" aria-label="delete" onClick={handleOpen}>
 						{!open ? <ExpandLess /> : <ExpandMore />}
