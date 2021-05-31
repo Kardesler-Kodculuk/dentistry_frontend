@@ -27,9 +27,22 @@ export function AppointmentDate() {
 	}
 	const clearDate = () => {
 		let date = new Date()
-		date.setHours(0, 0, 0, 0)
-		appointment?.date.setValues("start", date)
-		appointment?.date.setValues("end", date)
+		if (appointment?.time.values) {
+			date.setHours(
+				appointment?.time.values["start"][0],
+				appointment?.time.values["start"][1],
+				0,
+				0
+			)
+			appointment?.date.setValues("start", new Date(date))
+			date.setHours(
+				appointment?.time.values["end"][0],
+				appointment?.time.values["end"][1],
+				0,
+				0
+			)
+			appointment?.date.setValues("end", new Date(date))
+		}
 	}
 
 	if (!appointment?.date) {
@@ -37,7 +50,7 @@ export function AppointmentDate() {
 	}
 	return (
 		<CustomMenuItem name="Date" clearCallback={clearDate}>
-			<Box className={classes.container}  display="flex" justifyContent="center">
+			<Box className={classes.container} display="flex" justifyContent="center">
 				<MuiPickersUtilsProvider utils={DateFnsUtils}>
 					<KeyboardDatePicker
 						disableToolbar

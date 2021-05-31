@@ -49,6 +49,7 @@ export function AppointmentSession() {
 	const handleEnd = (event: React.ChangeEvent<{ value: unknown }>) => {
 		setEndID(event.target.value as number)
 	}
+	
 	const clear = () => {
 		if (appointment?.intervals) {
 			setStartID(0)

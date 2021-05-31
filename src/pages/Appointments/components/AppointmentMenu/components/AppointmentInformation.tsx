@@ -19,7 +19,6 @@ export function AppointmentInformation() {
 			name="Information"
 			clearCallback={() => {
 				appointment?.information.setValues("name", "")
-				appointment?.information.setValues("surname", "")
 				appointment?.information.setValues("cell", "")
 			}}>
 			<Box className={classes.container} display="flex" justifyContent="center">
@@ -29,13 +28,6 @@ export function AppointmentInformation() {
 					label="Name"
 					value={appointment?.information.values["name"]}
 					onChange={(e) => appointment?.information.setValues("name", e.target.value)}
-				/>
-				<TextField
-					required
-					fullWidth
-					label="Surname"
-					value={appointment?.information.values["surname"]}
-					onChange={(e) => appointment?.information.setValues("surname", e.target.value)}
 				/>
 				<TextField
 					required

@@ -43,10 +43,14 @@ const useStyles = makeStyles((theme) => ({
 type DialogData = {
 	children: any
 	title: string
+	noButton?: true
 	submit: { value: string; handler: (e: React.SyntheticEvent) => void }
 	componentColor: "inherit" | "default" | "primary" | "secondary" | undefined
 	componentName: string
 	onClick?: Function
+	open?: boolean | undefined
+	handleOpen?: () => void
+	handleClose?: () => void
 }
 
 export function CustomDialog(props: DialogData) {
@@ -62,30 +66,44 @@ export function CustomDialog(props: DialogData) {
 
 	return (
 		<div>
-			<Button
-				variant="contained"
-				color={props.componentColor}
-				onClick={() => {
-					openDialog()
-					if (props.onClick) {
-						props?.onClick()
-					}
-				}}>
-				{props.componentName}
-			</Button>
-			<Dialog open={open} onClose={closeDialog} keepMounted>
+			{props.noButton ? null : (
+				<Button
+					variant="contained"
+					color={props.componentColor}
+					onClick={() => {
+						if (props.handleOpen) {
+							props.handleOpen()
+						} else {
+							openDialog()
+						}
+						if (props.onClick) {
+							props?.onClick()
+						}
+					}}>
+					{props.componentName}
+				</Button>
+			)}
+
+			<Dialog open={props.open || open} onClose={props.handleClose || closeDialog} keepMounted>
 				<DialogTitle id="form-dialog-title">{props?.title}</DialogTitle>
-				<form onSubmit={props?.submit.handler}>
+				<form
+					onSubmit={(e) => {
+						props?.submit.handler(e)
+						if (props.handleClose) {
+							props.handleClose()
+						} else {
+							closeDialog()
+						}
+					}}>
 					<DialogContent>{props.children}</DialogContent>
 					<DialogActions>
-						<Button onClick={closeDialog} variant="contained" className={classes.cancel}>
+						<Button
+							onClick={props.handleClose || closeDialog}
+							variant="contained"
+							className={classes.cancel}>
 							Cancel
 						</Button>
-						<Button
-							variant="contained"
-							className={classes.submit}
-							onClick={closeDialog}
-							type="submit">
+						<Button variant="contained" className={classes.submit} type="submit">
 							{props?.submit.value}
 						</Button>
 					</DialogActions>

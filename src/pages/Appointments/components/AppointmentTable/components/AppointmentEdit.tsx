@@ -1,7 +1,9 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import { useAppointment } from "@dentistry/services"
+import { CalculateDuration } from "@dentistry/utils"
+import { AppointmentInfo } from "@dentistry/interfaces"
 import { CustomDialog } from "@dentistry/components"
-import { useForm, useArray } from "@dentistry/hooks"
+import { useForm } from "@dentistry/hooks"
 import {
 	Box,
 	Button,
@@ -18,7 +20,6 @@ import { MuiPickersUtilsProvider, KeyboardDatePicker } from "@material-ui/picker
 import { useEffect, useState } from "react"
 import { CalculateOpenSessions } from "@dentistry/utils"
 import { Time } from "@dentistry/interfaces"
-
 const useStyles = makeStyles((theme) => ({
 	doubleInput: {
 		display: "flex",
@@ -40,7 +41,15 @@ const useStyles = makeStyles((theme) => ({
 		marginRight: theme.spacing(10),
 	},
 }))
-export function AppointmentAdd() {
+
+type props = {
+	open: boolean
+	handleOpen: () => void
+	handleClose: () => void
+	editedAppointment: AppointmentInfo | null
+}
+
+export function AppointmentEdit(props: props) {
 	const classes = useStyles()
 	const appointment = useAppointment()
 	const [open, setOpen] = useState<boolean>(false)
@@ -57,6 +66,7 @@ export function AppointmentAdd() {
 			name: "",
 			cell: "",
 			notes: "",
+			price: "",
 		},
 	})
 
@@ -65,6 +75,30 @@ export function AppointmentAdd() {
 			date: new Date(),
 		},
 	})
+
+	useEffect(() => {
+		if (
+			props.editedAppointment &&
+			props.editedAppointment.patient &&
+			props.editedAppointment.doctor &&
+			props.editedAppointment.operations
+		) {
+			info.setValues("name", "" + props.editedAppointment.patient?.patient_name)
+			info.setValues("cell", "" + props.editedAppointment.patient?.phone_number)
+			info.setValues("notes", "" + props.editedAppointment.notes)
+			info.setValues(
+				"price",
+				"$ " +
+					props.editedAppointment.operations
+						.map((e) => e.diagnosis_price)
+						.reduce((a, b) => a + b, 0) /
+						100
+			)
+			date.setValues("date", new Date(props.editedAppointment.date_))
+			setDoctorID(props.editedAppointment.doctor?.doctor_id)
+			setOperationID([...props.editedAppointment.operations.map((e) => e.diagnosis_id)])
+		}
+	}, [props.editedAppointment])
 
 	useEffect(() => {
 		async function emptySlots() {
@@ -102,18 +136,17 @@ export function AppointmentAdd() {
 		date.setValues("date", new Date())
 	}, [open])
 
-	const addHandler = (e: React.SyntheticEvent): void => {
+	const editHandler = (e: React.SyntheticEvent): void => {
 		e.preventDefault()
-
 		let date_ = new Date(date.values["date"])
 		let start = appointment?.intervals.values.find((e) => e.time_id === startID)?.timeValues
-		if (start) {
+
+		if (start && props.editedAppointment && props.editedAppointment?.patient) {
 			date_.setHours(start[0], start[1], 0, 0)
-			appointment?.addAppointment(
+			appointment?.editAppointment(
+				props.editedAppointment?.appointment_id,
 				doctorID,
-				info.values["name"],
-				info.values["cell"],
-				operationID,
+				props.editedAppointment?.patient?.patient_id,
 				date_,
 				endID - startID,
 				info.values["notes"]
@@ -142,52 +175,31 @@ export function AppointmentAdd() {
 		setEndID(event.target.value as number)
 	}
 
-	const handleOpen = () => {
-		setOpen(true)
-	}
-
-	const handleClose = () => {
-		setOpen(false)
-		setOperationID([])
-
-		if (appointment && appointment?.doctors?.values.length > 0) {
-			setDoctorID(appointment?.doctors.values[0].doctor_id)
-		}
-
-		date.reset({
-			date: new Date(),
-		})
-		info.reset({
-			name: "",
-			cell: "",
-			notes: "",
-		})
-	}
-
 	return (
-		<div>
-			<CustomDialog
-				open={open}
-				handleClose={handleClose}
-				handleOpen={handleOpen}
-				componentColor="primary"
-				componentName="Add Appointment"
-				title="Appointment Information"
-				submit={{ value: "Add Appointment", handler: addHandler }}>
+		<CustomDialog
+			noButton
+			open={props.open}
+			handleOpen={props.handleOpen}
+			handleClose={props.handleClose}
+			componentColor="primary"
+			componentName={props.editedAppointment?.patient?.patient_name + "'s Appointment"}
+			title={props.editedAppointment?.patient?.patient_name + "'s Appointment"}
+			submit={{ value: "Edit", handler: editHandler }}>
+			<Box>
 				<Box>
 					<Box display="flex" alignItems="flex-end">
 						<TextField
-							required
 							className={classes.doubleInput}
 							fullWidth
+							disabled
 							label="Name"
 							value={info.values["name"]}
 							onChange={(e) => info.setValues("name", e.target.value)}
 						/>
 						<TextField
-							required
 							className={classes.doubleInput}
 							fullWidth
+							disabled
 							label="Cell"
 							value={info.values["cell"]}
 							onChange={(e) => info.setValues("cell", e.target.value)}
@@ -195,7 +207,6 @@ export function AppointmentAdd() {
 					</Box>
 
 					<Select
-						required
 						label="Operations"
 						value={operationID}
 						onChange={operationHandler}
@@ -204,24 +215,12 @@ export function AppointmentAdd() {
 						{appointment?.operations.values.map((operation) => (
 							<MenuItem
 								value={operation.diagnosis_id}
-								key={"add_operation_selection_" + operation.diagnosis_id}>
+								key={"edit_operation_selection_" + operation.diagnosis_id}>
 								{operation.diagnosis_name}
 							</MenuItem>
 						))}
 					</Select>
-
 					<Box display="flex" alignItems="flex-end">
-						<Select
-							required
-							value={doctorID}
-							onChange={doctorHandler}
-							className={classes.doubleInput}>
-							{appointment?.doctors.values.map((doctor) => (
-								<MenuItem value={doctor.doctor_id} key={"add_doctor_selection_" + doctor.doctor_id}>
-									{doctor.doctor_name}
-								</MenuItem>
-							))}
-						</Select>
 						<MuiPickersUtilsProvider utils={DateFnsUtils}>
 							<KeyboardDatePicker
 								minDate={new Date()}
@@ -238,6 +237,19 @@ export function AppointmentAdd() {
 								}}
 							/>
 						</MuiPickersUtilsProvider>
+						<Select
+							value={doctorID}
+							label="Doctor"
+							onChange={doctorHandler}
+							className={classes.doubleInput}>
+							{appointment?.doctors.values.map((doctor) => (
+								<MenuItem
+									value={doctor.doctor_id}
+									key={"edit_doctor_selection_" + doctor.doctor_id}>
+									{doctor.doctor_name}
+								</MenuItem>
+							))}
+						</Select>
 					</Box>
 					<Box display="flex" alignItems="flex-end">
 						<Select required value={startID} onChange={handleStart} className={classes.doubleInput}>
@@ -260,6 +272,14 @@ export function AppointmentAdd() {
 						</Select>
 					</Box>
 					<TextField
+						disabled
+						className={classes.doubleInput}
+						fullWidth
+						label="Price"
+						value={info.values["price"]}
+						onChange={(e) => info.setValues("price", e.target.value)}
+					/>
+					<TextField
 						className={classes.input}
 						fullWidth
 						label="Notes"
@@ -270,7 +290,7 @@ export function AppointmentAdd() {
 						onChange={(e) => info.setValues("notes", e.target.value)}
 					/>
 				</Box>
-			</CustomDialog>
-		</div>
+			</Box>
+		</CustomDialog>
 	)
 }

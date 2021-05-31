@@ -1,6 +1,7 @@
 import { Array, Form } from "@dentistry/interfaces"
 
 export interface Appointment {
+    totalCost:number
     appointments: Array<AppointmentInfo>
     intervals: Array<Time>
     doctors: Array<Doctor>
@@ -10,6 +11,10 @@ export interface Appointment {
     information: Form<string>
     date: Form<Date>
     time: Form<[number, number]>
+    emptyTimeSlots: (date: Date, doctor: number) => Promise<AppointmentInfo[]>
+    addAppointment: (doctor_id: number, name: string, cell: string, operation_ids: number[], date: Date, duration: number, notes: string) => Promise<number | undefined>
+    editAppointment: (id: number, doctor_id: number, patient_id: number, date: Date, duration: number, notes: string) => Promise<number | undefined>
+    deleteAppointment: (id: number) => Promise<number | undefined>
 }
 
 export interface Time { time_id: number, name: string; timeValues: [number, number] }
@@ -51,4 +56,26 @@ export function operationCmp(value: Operation, e: Operation): boolean {
 
 export function appointmentCmp(value: AppointmentInfo, e: AppointmentInfo): boolean {
     return value.appointment_id === e.appointment_id
+}
+
+export interface AddAppointment {
+    doctor_id: number;
+    diagnosis_ids: number[];
+    patient_id: number;
+    duration: number;
+    date_: number;
+    notes: string;
+}
+
+export interface EditAppointment {
+    doctor_id: number;
+    diagnosis_ids: number;
+    patient_id: number;
+    duration: number;
+    date_: number;
+}
+
+export interface CreatePatient {
+    patient_name: string;
+    phone_number: string;
 }
