@@ -144,7 +144,6 @@ export function AppointmentProvider(props: props) {
 				start.setDate(start.getDate() + 1)
 				end = new Date(end)
 				end.setDate(end.getDate() + 1)
-				console.log(queryString)
 			}
 			setQueryString(queryStrings)
 			setQueryStringLoad(true)

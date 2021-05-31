@@ -86,7 +86,6 @@ export function AppointmentEdit(props: props) {
 			appointment?.intervals
 		) {
 			let curr = CalculateDuration(props.editedAppointment, appointment?.intervals.values)
-			console.log(curr)
 			if (curr) {
 				setCurrent(curr)
 			}
