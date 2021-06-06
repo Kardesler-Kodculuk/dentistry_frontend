@@ -1,9 +1,17 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import { useAppointment, useLoading } from "@dentistry/services"
+import { useAppointment } from "@dentistry/services"
 import { CustomDialog } from "@dentistry/components"
 
 import { useForm } from "@dentistry/hooks"
-import { Box, TextField, makeStyles, Select, MenuItem, Chip, Button } from "@material-ui/core"
+import {
+	Box,
+	TextField,
+	makeStyles,
+	Select,
+	MenuItem,
+	Chip,
+	CircularProgress,
+} from "@material-ui/core"
 import DateFnsUtils from "@date-io/date-fns"
 import { MuiPickersUtilsProvider, KeyboardDatePicker } from "@material-ui/pickers"
 import { useEffect, useState } from "react"
@@ -17,7 +25,7 @@ const useStyles = makeStyles((theme) => ({
 		marginLeft: theme.spacing(1),
 		marginRight: theme.spacing(1),
 		marginBottom: theme.spacing(2),
-		width: 200,
+		width: 215,
 	},
 	input: {
 		display: "flex",
@@ -25,10 +33,10 @@ const useStyles = makeStyles((theme) => ({
 		marginLeft: theme.spacing(1),
 		marginRight: theme.spacing(1),
 		marginBottom: theme.spacing(2),
-		width: 400,
+		width: 430,
 	},
 	chip: {
-		marginLeft: theme.spacing(2),
+		marginLeft: theme.spacing(1),
 	},
 	warn: {
 		color: theme.palette.warning.light,
@@ -41,7 +49,6 @@ const useStyles = makeStyles((theme) => ({
 	},
 }))
 export function AppointmentAdd() {
-	const loading = useLoading()
 	const classes = useStyles()
 	const appointment = useAppointment()
 	const [open, setOpen] = useState<boolean>(false)
@@ -53,7 +60,8 @@ export function AppointmentAdd() {
 	const [slots, setSlots] = useState<{ time: Time; ends: Time[] }[]>([])
 	const [doctorSlots, setDoctorSlots] = useState<{ time: Time; ends: Time[] }[][]>([])
 	const [slotEnds, setSlotEnds] = useState<Time[]>([])
-
+	const [loading, setLoading] = useState<boolean>(false)
+	const [loading_, setLoading_] = useState<boolean>(false)
 	const info = useForm<string>({
 		initials: {
 			name: "",
@@ -69,6 +77,7 @@ export function AppointmentAdd() {
 	})
 	useEffect(() => {
 		async function emptySlots() {
+			setLoading(true)
 			let res = appointment?.doctors.values.map((e) =>
 				appointment?.emptyTimeSlots(date.values["date"], e.doctor_id)
 			)
@@ -79,16 +88,19 @@ export function AppointmentAdd() {
 					setDoctorSlots(sessions)
 				}
 			}
+			setLoading(false)
 		}
 		emptySlots()
 	}, [date.values, appointment?.appointments.values])
 
 	useEffect(() => {
 		async function emptySlots() {
+			setLoading_(true)
 			let res = await appointment?.emptyTimeSlots(date.values["date"], doctorID)
 			if (res && appointment?.intervals) {
 				setSlots(CalculateOpenSessions(res, appointment?.intervals.values))
 			}
+			setLoading_(false)
 		}
 		emptySlots()
 	}, [date.values, appointment?.appointments.values, doctorID])
@@ -181,15 +193,6 @@ export function AppointmentAdd() {
 		})
 	}
 
-	if (doctorSlots.length !== appointment?.doctors.values.length) {
-		return (
-			<Button disabled variant="contained">
-				{" "}
-				Add Appointment
-			</Button>
-		)
-	}
-
 	return (
 		<div>
 			<CustomDialog
@@ -200,125 +203,133 @@ export function AppointmentAdd() {
 				componentName="Add Appointment"
 				title="Appointment Information"
 				submit={{ value: "Add Appointment", handler: addHandler }}>
-				<Box>
-					<Box display="flex" alignItems="flex-end">
-						<TextField
-							required
-							className={classes.doubleInput}
-							fullWidth
-							label="Name"
-							value={info.values["name"]}
-							onChange={(e) => info.setValues("name", e.target.value)}
-						/>
-						<TextField
-							required
-							className={classes.doubleInput}
-							fullWidth
-							label="Phone Number"
-							value={info.values["cell"]}
-							onChange={(e) => info.setValues("cell", e.target.value)}
-						/>
+				{loading || loading_ || doctorSlots.length !== appointment?.doctors.values.length ? (
+					<Box display="flex" justifyContent="center" alignContent="center" marginBottom={3}>
+						<CircularProgress color="inherit" />
 					</Box>
+				) : (
+					<Box>
+						<Box display="flex" alignItems="flex-end">
+							<TextField
+								required
+								className={classes.doubleInput}
+								fullWidth
+								label="Name"
+								value={info.values["name"]}
+								onChange={(e) => info.setValues("name", e.target.value)}
+							/>
+							<TextField
+								required
+								className={classes.doubleInput}
+								fullWidth
+								label="Phone Number"
+								value={info.values["cell"]}
+								onChange={(e) => info.setValues("cell", e.target.value)}
+							/>
+						</Box>
 
-					<Select
-						required
-						label="Operations"
-						value={operationID}
-						onChange={operationHandler}
-						className={classes.input}
-						multiple>
-						{appointment?.operations.values.map((operation) => (
-							<MenuItem
-								value={operation.diagnosis_id}
-								key={"add_operation_selection_" + operation.diagnosis_id}>
-								{operation.diagnosis_name}
-							</MenuItem>
-						))}
-					</Select>
-
-					<Box display="flex" alignItems="flex-end">
 						<Select
 							required
-							value={doctorID}
-							onChange={doctorHandler}
-							className={classes.doubleInput}>
-							{appointment?.doctors.values.map((doctor, i) => (
-								<MenuItem value={doctor.doctor_id} key={"add_doctor_selection_" + doctor.doctor_id}>
-									<Box
-										className={
-											doctorSlots[i].length > 9
-												? classes.empty
-												: doctorSlots[i].length > 0
-												? classes.warn
-												: classes.full
-										}>
-										{doctor.doctor_name}
-										<Chip size="small" label={doctorSlots[i].length} className={classes.chip} />
-									</Box>
+							label="Operations"
+							value={operationID}
+							onChange={operationHandler}
+							className={classes.input}
+							multiple>
+							{appointment?.operations.values.map((operation) => (
+								<MenuItem
+									value={operation.diagnosis_id}
+									key={"add_operation_selection_" + operation.diagnosis_id}>
+									{operation.diagnosis_name}
 								</MenuItem>
 							))}
 						</Select>
-						<MuiPickersUtilsProvider utils={DateFnsUtils}>
-							<KeyboardDatePicker
-								minDate={new Date()}
-								className={classes.doubleInput}
-								disableToolbar
-								variant="inline"
-								format="dd/MM/yyyy"
-								margin="normal"
-								id="date-picker-inline3"
-								value={date.values["date"]}
-								onChange={dateHandler}
-								KeyboardButtonProps={{
-									"aria-label": "change date",
-								}}
-							/>
-						</MuiPickersUtilsProvider>
-					</Box>
-					{slots.length > 0 ? (
+
 						<Box display="flex" alignItems="flex-end">
 							<Select
 								required
-								value={startID}
-								onChange={handleStart}
+								value={doctorID}
+								onChange={doctorHandler}
 								className={classes.doubleInput}>
-								{slots.map((slot) => (
+								{appointment?.doctors.values.map((doctor, i) => (
 									<MenuItem
-										value={slot.time.time_id}
-										key={"add_session_selection_start_" + slot.time.time_id}>
-										{slot.time.name}
-										<Chip size="small" label={slot.ends.length} className={classes.chip} />
+										value={doctor.doctor_id}
+										key={"add_doctor_selection_" + doctor.doctor_id}>
+										<Box
+											className={
+												doctorSlots[i].length > 9
+													? classes.empty
+													: doctorSlots[i].length > 0
+													? classes.warn
+													: classes.full
+											}>
+											{doctor.doctor_name}
+											<Chip size="small" label={doctorSlots[i].length} className={classes.chip} />
+										</Box>
 									</MenuItem>
 								))}
 							</Select>
-
-							<Select required value={endID} onChange={handleEnd} className={classes.doubleInput}>
-								{slotEnds.map((slot) => (
-									<MenuItem
-										value={slot.time_id}
-										key={"add_session_selection_start_" + slot.time_id}>
-										{slot.name}
-									</MenuItem>
-								))}
-							</Select>
+							<MuiPickersUtilsProvider utils={DateFnsUtils}>
+								<KeyboardDatePicker
+									minDate={new Date()}
+									className={classes.doubleInput}
+									disableToolbar
+									variant="inline"
+									format="dd/MM/yyyy"
+									margin="normal"
+									id="date-picker-inline3"
+									value={date.values["date"]}
+									onChange={dateHandler}
+									KeyboardButtonProps={{
+										"aria-label": "change date",
+									}}
+								/>
+							</MuiPickersUtilsProvider>
 						</Box>
-					) : (
-						<Box display="flex" alignItems="flex-end" justifyContent="center" margin={3}>
-							No slots left
-						</Box>
-					)}
+						{slots.length > 0 ? (
+							<Box display="flex" alignItems="flex-end">
+								<Select
+									required
+									value={startID}
+									onChange={handleStart}
+									className={classes.doubleInput}>
+									{slots.map((slot) => (
+										<MenuItem
+											value={slot.time.time_id}
+											key={"add_session_selection_start_" + slot.time.time_id}>
+											{slot.time.name}
+											<Chip size="small" label={slot.ends.length} className={classes.chip} />
+										</MenuItem>
+									))}
+								</Select>
 
-					<TextField
-						className={classes.input}
-						fullWidth
-						label="Notes"
-						rows={3}
-						multiline
-						variant="outlined"
-						value={info.values["notes"]}
-						onChange={(e) => info.setValues("notes", e.target.value)}
-					/>
-				</Box>
+								<Select required value={endID} onChange={handleEnd} className={classes.doubleInput}>
+									{slotEnds.map((slot) => (
+										<MenuItem
+											value={slot.time_id}
+											key={"add_session_selection_start_" + slot.time_id}>
+											{slot.name}
+										</MenuItem>
+									))}
+								</Select>
+							</Box>
+						) : (
+							<Box display="flex" alignItems="flex-end" justifyContent="center" margin={3}>
+								No slots left
+							</Box>
+						)}
+
+						<TextField
+							className={classes.input}
+							fullWidth
+							label="Notes"
+							rows={3}
+							multiline
+							variant="outlined"
+							value={info.values["notes"]}
+							onChange={(e) => info.setValues("notes", e.target.value)}
+						/>
+					</Box>
+				)}
 			</CustomDialog>
 		</div>
 	)

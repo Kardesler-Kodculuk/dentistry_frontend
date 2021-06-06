@@ -29,6 +29,7 @@ export function AppointmentDate(props: props) {
 	}
 	const clearDate = () => {
 		let date = new Date()
+
 		if (appointment?.time.values) {
 			date.setHours(
 				appointment?.time.values["start"][0],
@@ -39,6 +40,7 @@ export function AppointmentDate(props: props) {
 			appointment?.date.setValues("start", new Date(date))
 			date.setHours(appointment?.time.values["end"][0], appointment?.time.values["end"][1], 0, 0)
 			appointment?.date.setValues("end", new Date(date))
+			setState(true)
 		}
 	}
 	useEffect(() => {

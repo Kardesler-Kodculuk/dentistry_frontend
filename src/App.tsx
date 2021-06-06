@@ -7,6 +7,7 @@ function App() {
 		<div className="App">
 			<BackdropProvider>
 				<SnackbarProvider
+					maxSnack={3}
 					anchorOrigin={{
 						vertical: "bottom",
 						horizontal: "right",
