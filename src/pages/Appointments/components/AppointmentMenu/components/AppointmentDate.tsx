@@ -68,7 +68,16 @@ export function AppointmentDate() {
 							id="date-picker-inline"
 							label="Start Date"
 							value={appointment?.date.values["start"]}
-							onChange={(date) => handleDate("start", date)}
+							onChange={(date) => {
+								if (date) {
+									if (date?.getTime() <= appointment?.date.values["end"].getTime()) {
+										handleDate("start", date)
+									} else {
+										handleDate("end", date)
+										handleDate("start", date)
+									}
+								}
+							}}
 							KeyboardButtonProps={{
 								"aria-label": "change date",
 							}}

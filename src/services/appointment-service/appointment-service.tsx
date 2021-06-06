@@ -14,15 +14,15 @@ import {
 	appointmentCmp,
 	Patient,
 } from "@dentistry/interfaces"
-import { useQuery } from "@dentistry/services"
+import { useQuery,useLoading } from "@dentistry/services"
 import { useContext, createContext, useEffect, useState } from "react"
 export const AppointmentContext = createContext<Appointment | null>(null)
-
 type props = {
 	children: React.ReactNode
 }
 
 export function AppointmentProvider(props: props) {
+	const loading = useLoading()
 	const query = useQuery()
 	const [queryString, setQueryString] = useState<string[]>([])
 	const [queryStringLoad, setQueryStringLoad] = useState<boolean>(false)
@@ -61,25 +61,30 @@ export function AppointmentProvider(props: props) {
 	})
 
 	useEffect(() => {
-		intervals.clear()
-		doctors.clear()
-		operations.clear()
-		if (query) {
-			const sessionValues: Time[] = []
-			let start = 830
-			const end = 1800
-			for (let i = 0; start < end; i++) {
-				sessionValues.push({
-					time_id: i,
-					name: `${(start / 100).toFixed(0)}:${start % 100 === 0 ? "00" : "30"}`,
-					timeValues: [Number((start / 100).toFixed(0)), start % 100],
-				})
-				start = start % 100 === 30 ? start + 70 : start + 30
+		async function fetch(){
+			loading?.open()
+			intervals.clear()
+			doctors.clear()
+			operations.clear()
+			if (query) {
+				const sessionValues: Time[] = []
+				let start = 830
+				const end = 1800
+				for (let i = 0; start < end; i++) {
+					sessionValues.push({
+						time_id: i,
+						name: `${(start / 100).toFixed(0)}:${start % 100 === 0 ? "00" : "30"}`,
+						timeValues: [Number((start / 100).toFixed(0)), start % 100],
+					})
+					start = start % 100 === 30 ? start + 70 : start + 30
+				}
+				intervals.addValues(sessionValues)
+				await query.get<Doctor[]>("doctors").then((data) => doctors.addValues(data))
+				await query.get<Operation[]>("diagnosis").then((data) => operations.addValues(data))
 			}
-			intervals.addValues(sessionValues)
-			query.get<Doctor[]>("doctors").then((data) => doctors.addValues(data))
-			query.get<Operation[]>("diagnosis").then((data) => operations.addValues(data))
+			loading?.close()
 		}
+		fetch()
 	}, [query])
 
 	useEffect(() => {
@@ -106,6 +111,7 @@ export function AppointmentProvider(props: props) {
 
 	useEffect(() => {
 		async function createStrings() {
+			loading?.open()
 			setQueryString([])
 			appointmentQuery.clear()
 			appointments.clear()
@@ -231,6 +237,7 @@ export function AppointmentProvider(props: props) {
 			if (queryLoad) {
 				appointments.clear()
 				appointments.addValues(await fetchAppointments(appointmentQuery.values))
+				loading?.close()
 			}
 		}
 		fetchAppointment()
@@ -246,7 +253,8 @@ export function AppointmentProvider(props: props) {
 			end.getTime() / 1000
 		}&doctor_id=${doctor}`
 		let res = await fetchQueries([queryString])
-		return await fetchAppointments(res)
+		let data = await fetchAppointments(res)
+		return data
 	}
 
 	const createPatient = async (name: string, cell: string) => {
@@ -265,6 +273,7 @@ export function AppointmentProvider(props: props) {
 		duration: number,
 		notes: string
 	) => {
+		loading?.open()
 		let patient = await createPatient(name, cell)
 		if (patient) {
 			let id = await query?.postBody<number>("appointments", {
@@ -278,6 +287,7 @@ export function AppointmentProvider(props: props) {
 			setReset(!reset)
 			return id
 		}
+		loading?.close()
 		return -1
 	}
 
@@ -289,6 +299,7 @@ export function AppointmentProvider(props: props) {
 		duration: number,
 		notes: string
 	) => {
+		loading?.open()
 		let res = await query?.pathBody<number>("appointments/" + id, {
 			doctor_id: doctor_id,
 			patient_id: patient_id,
@@ -297,11 +308,14 @@ export function AppointmentProvider(props: props) {
 			notes: notes,
 		})
 		setReset(!reset)
+		loading?.close()
 		return res
 	}
 	const deleteAppointment = async (id: number) => {
+		loading?.open()
 		let res = await query?.deleteID<number>("appointments/" + id)
 		setReset(!reset)
+		loading?.close()
 		return res
 	}
 	const value = {

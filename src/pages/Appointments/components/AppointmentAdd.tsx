@@ -1,5 +1,5 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import { useAppointment } from "@dentistry/services"
+import { useAppointment,useLoading } from "@dentistry/services"
 import { CustomDialog } from "@dentistry/components"
 import { useForm, useArray } from "@dentistry/hooks"
 import {
@@ -50,6 +50,7 @@ const useStyles = makeStyles((theme) => ({
 		color: theme.palette.secondary.dark,
 	},
 }))
+
 export function AppointmentAdd() {
 	const classes = useStyles()
 	const appointment = useAppointment()
