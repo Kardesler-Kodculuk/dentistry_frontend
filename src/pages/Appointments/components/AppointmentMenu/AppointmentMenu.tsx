@@ -17,7 +17,7 @@ export function AppointmentMenu() {
 				<ListItem>
 					<ListItemText>
 						<Box display="flex" justifyContent="center">
-							e-CUBO | Dentistry App
+							e-KUBO | Dentistry App
 						</Box>
 					</ListItemText>
 				</ListItem>
