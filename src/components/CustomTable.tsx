@@ -44,7 +44,7 @@ export function CustomTable(props: props) {
 	const classes = useStyles()
 	return (
 		<div>
-			<Box className={classes.box} left="80%" position="relative">
+			<Box className={classes.box} left="80%">
 				{props.buttons?.map((button, i) => (
 					<Button variant="contained" color="primary" key={"user_table_buttons_" + i}>
 						{button.value}
