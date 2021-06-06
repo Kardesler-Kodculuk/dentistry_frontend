@@ -37,10 +37,8 @@ const useStyles = makeStyles((theme) => ({
 		marginBottom: theme.spacing(2),
 		width: 400,
 	},
-
 	chip: {
 		marginLeft: theme.spacing(2),
-		marginRight: theme.spacing(10),
 	},
 	warn: {
 		color: theme.palette.warning.light,
@@ -293,8 +291,8 @@ export function AppointmentAdd() {
 									<MenuItem
 										value={slot.time.time_id}
 										key={"add_session_selection_start_" + slot.time.time_id}>
-										<Chip size="small" label={slot.ends.length} className={classes.chip} />
 										{slot.time.name}
+										<Chip size="small" label={slot.ends.length} className={classes.chip} />
 									</MenuItem>
 								))}
 							</Select>
