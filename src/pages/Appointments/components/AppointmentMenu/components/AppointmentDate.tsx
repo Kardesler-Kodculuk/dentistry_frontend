@@ -4,7 +4,7 @@ import { useAppointment } from "@dentistry/services"
 import DateFnsUtils from "@date-io/date-fns"
 import { MuiPickersUtilsProvider, KeyboardDatePicker } from "@material-ui/pickers"
 import { useState, useEffect } from "react"
-import { Box, Switch, FormControlLabel } from "@material-ui/core"
+import { Box, Switch, FormControlLabel, Checkbox } from "@material-ui/core"
 const useStyles = makeStyles((theme) => ({
 	container: {
 		display: "flex",
@@ -12,6 +12,9 @@ const useStyles = makeStyles((theme) => ({
 		marginLeft: theme.spacing(2.5),
 		marginRight: theme.spacing(1),
 		width: 200,
+	},
+	end: {
+		width: 170,
 	},
 }))
 type props = {
@@ -21,6 +24,7 @@ export function AppointmentDate(props: props) {
 	const appointment = useAppointment()
 	const classes = useStyles()
 	const [state, setState] = useState<boolean>(true)
+	const [interval, setInterval] = useState<boolean>(false)
 	const handleDate = (type: string, date: Date | null) => {
 		if (date) {
 			date.setHours(0, 0, 0, 0)
@@ -40,6 +44,7 @@ export function AppointmentDate(props: props) {
 			appointment?.date.setValues("start", new Date(date))
 			date.setHours(appointment?.time.values["end"][0], appointment?.time.values["end"][1], 0, 0)
 			appointment?.date.setValues("end", new Date(date))
+			setInterval(false)
 			setState(true)
 		}
 	}
@@ -60,6 +65,16 @@ export function AppointmentDate(props: props) {
 	const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
 		setState(event.target.checked)
 	}
+	const handleInterval = (event: React.ChangeEvent<HTMLInputElement>) => {
+		setInterval(event.target.checked)
+		let start = appointment?.date.values["start"]
+		let end = appointment?.date.values["end"]
+		start?.setHours(0, 0, 0, 0)
+		end?.setHours(0, 0, 0, 0)
+		if (interval && appointment?.date.values && start?.getTime() !== end?.getTime()) {
+			handleDate("end", appointment?.date.values["start"])
+		}
+	}
 	if (!appointment?.date) {
 		return null
 	}
@@ -77,12 +92,17 @@ export function AppointmentDate(props: props) {
 							label="Start Date"
 							value={appointment?.date.values["start"]}
 							onChange={(date) => {
-								if (date) {
-									if (date?.getTime() <= appointment?.date.values["end"].getTime()) {
-										handleDate("start", date)
-									} else {
-										handleDate("end", date)
-										handleDate("start", date)
+								if (!interval) {
+									handleDate("start", date)
+									handleDate("end", date)
+								} else {
+									if (date) {
+										if (date?.getTime() <= appointment?.date.values["end"].getTime()) {
+											handleDate("start", date)
+										} else {
+											handleDate("end", date)
+											handleDate("start", date)
+										}
 									}
 								}
 							}}
@@ -90,29 +110,45 @@ export function AppointmentDate(props: props) {
 								"aria-label": "change date",
 							}}
 						/>
-						<KeyboardDatePicker
-							disableToolbar
-							variant="inline"
-							format="dd/MM/yyyy"
-							margin="normal"
-							id="date-picker-inline-2"
-							label="End Date"
-							value={appointment?.date.values["end"]}
-							minDate={appointment?.date.values["start"]}
-							onChange={(date) => handleDate("end", date)}
-							KeyboardButtonProps={{
-								"aria-label": "change date",
-							}}
-						/>
+						<Box display="flex" alignContent="flex-end" justifyContent="flex-start">
+							<Box display="flex" alignContent="center" justifyContent="center">
+								<Checkbox checked={interval} onChange={handleInterval} color="primary" />
+							</Box>
+
+							<KeyboardDatePicker
+								className={classes.end}
+								disabled={!interval}
+								disableToolbar
+								variant="inline"
+								format="dd/MM/yyyy"
+								margin="normal"
+								id="date-picker-inline-2"
+								label="End Date"
+								value={appointment?.date.values["end"]}
+								onChange={(date) => {
+									if (date) {
+										if (date?.getTime() >= appointment?.date.values["start"].getTime()) {
+											handleDate("end", date)
+										} else {
+											handleDate("start", date)
+											handleDate("end", date)
+										}
+									}
+								}}
+								KeyboardButtonProps={{
+									"aria-label": "change date",
+								}}
+							/>
+						</Box>
 					</MuiPickersUtilsProvider>
 				</Box>
 			)}
 			<Box display="flex" justifyContent="center" marginTop={1} marginBottom={1}>
 				<FormControlLabel
 					control={
-						<Switch checked={state} onChange={handleChange} name="All Dates" color="primary" />
+						<Switch checked={state} onChange={handleChange} name="Filter by Date" color="primary" />
 					}
-					label="Filter By Date"
+					label="Filter by Date"
 				/>
 			</Box>
 		</CustomMenuItem>
