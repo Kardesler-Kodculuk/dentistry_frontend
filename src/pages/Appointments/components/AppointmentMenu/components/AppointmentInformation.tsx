@@ -1,7 +1,8 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import { useAppointment } from "@dentistry/services"
+import { useEffect } from "react"
 import { CustomMenuItem } from "@dentistry/components"
-import { Checkbox, ListItem, TextField, makeStyles, Box } from "@material-ui/core"
+import {  TextField, makeStyles, Box } from "@material-ui/core"
 const useStyles = makeStyles((theme) => ({
 	container: {
 		display: "flex",
@@ -11,10 +12,18 @@ const useStyles = makeStyles((theme) => ({
 		width: 200,
 	},
 }))
-export function AppointmentInformation() {
+type props = {
+	reset: boolean
+}
+export function AppointmentInformation(props:props) {
 	
 	const appointment = useAppointment()
 	const classes = useStyles()
+
+	useEffect(() => {
+		appointment?.information.setValues("name", "")
+	}, [props.reset])
+	
 	return (
 		<CustomMenuItem
 			name="Information"

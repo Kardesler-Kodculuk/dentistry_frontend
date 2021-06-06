@@ -14,8 +14,10 @@ const useStyles = makeStyles((theme) => ({
 		width: 200,
 	},
 }))
-
-export function AppointmentDate() {
+type props = {
+	reset: boolean
+}
+export function AppointmentDate(props: props) {
 	const appointment = useAppointment()
 	const classes = useStyles()
 	const [state, setState] = useState<boolean>(true)
@@ -48,6 +50,10 @@ export function AppointmentDate() {
 			}
 		}
 	}, [state])
+
+	useEffect(() => {
+		clearDate()
+	}, [props.reset])
 
 	const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
 		setState(event.target.checked)

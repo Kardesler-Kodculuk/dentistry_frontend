@@ -1,4 +1,4 @@
-import { List, Drawer, makeStyles } from "@material-ui/core"
+import { List, Drawer, makeStyles, CssBaseline, Toolbar } from "@material-ui/core"
 
 const drawerWidth = 240
 
@@ -6,13 +6,15 @@ const useStyles = makeStyles((theme) => ({
 	root: {
 		display: "flex",
 	},
-
 	drawer: {
 		width: drawerWidth,
 		flexShrink: 0,
 	},
 	drawerPaper: {
 		width: drawerWidth,
+	},
+	drawerContainer: {
+		overflow: "auto",
 	},
 	list: {
 		width: "100%",
@@ -31,17 +33,21 @@ export function CustomMenu(props: props) {
 
 	return (
 		<div className={classes.root}>
+			<CssBaseline />
 			<Drawer
 				className={classes.drawer}
 				classes={{
 					paper: classes.drawerPaper,
 				}}
-				variant="persistent"
+				variant="permanent"
 				anchor="left"
 				open={true}>
-				<List dense className={classes.list}>
-					{props.children}
-				</List>
+				<Toolbar />
+				<div className={classes.drawerContainer}>
+					<List dense className={classes.list}>
+						{props.children}
+					</List>
+				</div>
 			</Drawer>
 		</div>
 	)

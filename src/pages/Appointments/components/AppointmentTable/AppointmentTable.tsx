@@ -65,7 +65,7 @@ export function AppointmentTable() {
 	}
 
 	return (
-		<div style={{ height: 700, width: "100%" }}>
+		<div style={{ width: "100%" }}>
 			<CustomTable>
 				<TableHead>
 					<TableRow className={classes.head}>

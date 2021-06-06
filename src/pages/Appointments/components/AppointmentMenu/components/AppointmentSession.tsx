@@ -9,8 +9,10 @@ const useStyles = makeStyles((theme) => ({
 		minWidth: 80,
 	},
 }))
-
-export function AppointmentSession() {
+type props = {
+	reset: boolean
+}
+export function AppointmentSession(props: props) {
 	const [load, setLoad] = useState(false)
 	const classes = useStyles()
 	const appointment = useAppointment()
@@ -39,6 +41,17 @@ export function AppointmentSession() {
 		}
 	}, [endID])
 
+	const clear = () => {
+		if (appointment?.intervals) {
+			setStartID(0)
+			setEndID(appointment?.intervals.values.length - 1)
+		}
+	}
+
+	useEffect(() => {
+		clear()
+	}, [props.reset])
+
 	if (!appointment || !load) {
 		return null
 	}
@@ -48,13 +61,6 @@ export function AppointmentSession() {
 	}
 	const handleEnd = (event: React.ChangeEvent<{ value: unknown }>) => {
 		setEndID(event.target.value as number)
-	}
-
-	const clear = () => {
-		if (appointment?.intervals) {
-			setStartID(0)
-			setEndID(appointment?.intervals.values.length - 1)
-		}
 	}
 
 	return (

@@ -14,9 +14,12 @@ import {
 	appointmentCmp,
 	Patient,
 } from "@dentistry/interfaces"
-import { useQuery,useLoading } from "@dentistry/services"
+import { useQuery, useLoading } from "@dentistry/services"
 import { useContext, createContext, useEffect, useState } from "react"
+import { useSnackbar } from "notistack"
+
 export const AppointmentContext = createContext<Appointment | null>(null)
+
 type props = {
 	children: React.ReactNode
 }
@@ -24,6 +27,7 @@ type props = {
 export function AppointmentProvider(props: props) {
 	const loading = useLoading()
 	const query = useQuery()
+	const alert = useSnackbar()
 	const [queryString, setQueryString] = useState<string[]>([])
 	const [queryStringLoad, setQueryStringLoad] = useState<boolean>(false)
 	const [queryLoad, setQueryLoad] = useState<boolean>(false)
@@ -61,7 +65,7 @@ export function AppointmentProvider(props: props) {
 	})
 
 	useEffect(() => {
-		async function fetch(){
+		async function fetch() {
 			loading?.open()
 			intervals.clear()
 			doctors.clear()
@@ -284,6 +288,8 @@ export function AppointmentProvider(props: props) {
 				duration: duration,
 				notes: notes,
 			})
+
+			alert.enqueueSnackbar("Appointment added", { variant: "success" })
 			setReset(!reset)
 			return id
 		}
@@ -307,6 +313,7 @@ export function AppointmentProvider(props: props) {
 			duration: duration,
 			notes: notes,
 		})
+		alert.enqueueSnackbar("Appointment edited", { variant: "info" })
 		setReset(!reset)
 		loading?.close()
 		return res
@@ -314,6 +321,7 @@ export function AppointmentProvider(props: props) {
 	const deleteAppointment = async (id: number) => {
 		loading?.open()
 		let res = await query?.deleteID<number>("appointments/" + id)
+		alert.enqueueSnackbar("Appointment deleted", { variant: "error" })
 		setReset(!reset)
 		loading?.close()
 		return res

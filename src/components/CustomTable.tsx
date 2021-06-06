@@ -18,7 +18,7 @@ const useStyles = makeStyles((theme) => ({
 		width: "100%",
 	},
 	table: {
-		maxHeight: 700,
+		maxHeight: 850,
 		overflow: "auto",
 	},
 
@@ -44,30 +44,30 @@ export function CustomTable(props: props) {
 	const classes = useStyles()
 	return (
 		<div>
-			<Box className={classes.box} left="80%">
+			<Box className={classes.box}>
 				{props.buttons?.map((button, i) => (
 					<Button variant="contained" color="primary" key={"user_table_buttons_" + i}>
 						{button.value}
 					</Button>
 				))}
 			</Box>
+
+
 			<CardContent>
-				<Container>
-					<Grid
-						container
-						direction="column"
-						justify="center"
-						alignItems="center"
-						style={{ minHeight: "1vh", minWidth: "35vh" }}>
-						<Paper className={classes.container}>
-							<TableContainer className={classes.table}>
-								<TableContainer>
-									<Table>{props.children}</Table>
-								</TableContainer>
+				<Grid
+					container
+					direction="column"
+					justify="center"
+					alignItems="center"
+					style={{ minHeight: "1vh", minWidth: "130vh" }}>
+					<Paper className={classes.container}>
+						<TableContainer className={classes.table}>
+							<TableContainer>
+								<Table>{props.children}</Table>
 							</TableContainer>
-						</Paper>
-					</Grid>
-				</Container>
+						</TableContainer>
+					</Paper>
+				</Grid>
 			</CardContent>
 		</div>
 	)

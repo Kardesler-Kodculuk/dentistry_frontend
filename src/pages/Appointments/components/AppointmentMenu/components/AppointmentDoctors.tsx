@@ -1,6 +1,7 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import { useAppointment } from "@dentistry/services"
 import { CustomMenuItem } from "@dentistry/components"
+import { useEffect } from "react"
 import {
 	Checkbox,
 	ListItem,
@@ -8,7 +9,12 @@ import {
 	ListItemSecondaryAction,
 } from "@material-ui/core"
 import { Doctor } from "@dentistry/interfaces"
-export function AppointmentDoctors() {
+
+type props = {
+	reset: boolean
+}
+
+export function AppointmentDoctors(props:props) {
 	const appointment = useAppointment()
 
 	const handleDoctors = (doctor: Doctor): void => {
@@ -17,6 +23,10 @@ export function AppointmentDoctors() {
 		}
 		return appointment?.selectedDoctors.removeValue(doctor)
 	}
+
+	useEffect(() => {
+		appointment?.selectedDoctors.clear()
+	}, [props.reset])
 
 	return (
 		<CustomMenuItem name="Doctors" clearCallback={() => appointment?.selectedDoctors.clear()}>

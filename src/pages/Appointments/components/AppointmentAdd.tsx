@@ -181,10 +181,9 @@ export function AppointmentAdd() {
 		})
 	}
 
-
 	if (doctorSlots.length !== appointment?.doctors.values.length) {
 		return (
-			<Button disabled variant="contained" color="primary">
+			<Button disabled variant="contained">
 				{" "}
 				Add Appointment
 			</Button>
@@ -197,7 +196,7 @@ export function AppointmentAdd() {
 				open={open}
 				handleClose={handleClose}
 				handleOpen={handleOpen}
-				componentColor="primary"
+				componentColor="default"
 				componentName="Add Appointment"
 				title="Appointment Information"
 				submit={{ value: "Add Appointment", handler: addHandler }}>
