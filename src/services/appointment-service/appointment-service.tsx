@@ -13,12 +13,8 @@ import {
 	AppointmentQuery,
 	appointmentCmp,
 	Patient,
-	CreatePatient,
-	AddAppointment,
-	EditAppointment,
 } from "@dentistry/interfaces"
 import { useQuery } from "@dentistry/services"
-import { FormatListNumbered } from "@material-ui/icons"
 import { useContext, createContext, useEffect, useState } from "react"
 export const AppointmentContext = createContext<Appointment | null>(null)
 
@@ -174,7 +170,6 @@ export function AppointmentProvider(props: props) {
 			.reduce((a, b) => {
 				return a + b
 			})
-
 		if (sum) {
 			setTotalCost(sum / 100)
 		}
@@ -260,11 +255,7 @@ export function AppointmentProvider(props: props) {
 			phone_number: cell,
 		})
 	}
-	const queryPatient = async (name: string) => {
-		return query?.postBody<{ patient_id: number }>("patients", {
-			patient_name: name,
-		})
-	}
+
 	const addAppointment = async (
 		doctor_id: number,
 		name: string,

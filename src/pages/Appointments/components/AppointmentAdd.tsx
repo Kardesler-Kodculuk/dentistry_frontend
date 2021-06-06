@@ -12,6 +12,7 @@ import {
 	MenuItem,
 	Input,
 	Chip,
+	Typography,
 } from "@material-ui/core"
 import DateFnsUtils from "@date-io/date-fns"
 import { MuiPickersUtilsProvider, KeyboardDatePicker } from "@material-ui/pickers"
@@ -26,7 +27,7 @@ const useStyles = makeStyles((theme) => ({
 		marginLeft: theme.spacing(1),
 		marginRight: theme.spacing(1),
 		marginBottom: theme.spacing(2),
-		width: 170,
+		width: 200,
 	},
 	input: {
 		display: "flex",
@@ -34,10 +35,21 @@ const useStyles = makeStyles((theme) => ({
 		marginLeft: theme.spacing(1),
 		marginRight: theme.spacing(1),
 		marginBottom: theme.spacing(2),
-		width: 350,
+		width: 400,
 	},
+
 	chip: {
+		marginLeft: theme.spacing(2),
 		marginRight: theme.spacing(10),
+	},
+	warn: {
+		color: theme.palette.warning.light,
+	},
+	empty: {
+		color: theme.palette.success.main,
+	},
+	full: {
+		color: theme.palette.secondary.dark,
 	},
 }))
 export function AppointmentAdd() {
@@ -50,6 +62,7 @@ export function AppointmentAdd() {
 	const [startID, setStartID] = useState<number>(0)
 	const [endID, setEndID] = useState<number>(0)
 	const [slots, setSlots] = useState<{ time: Time; ends: Time[] }[]>([])
+	const [doctorSlots, setDoctorSlots] = useState<{ time: Time; ends: Time[] }[][]>([])
 	const [slotEnds, setSlotEnds] = useState<Time[]>([])
 
 	const info = useForm<string>({
@@ -65,6 +78,21 @@ export function AppointmentAdd() {
 			date: new Date(),
 		},
 	})
+	useEffect(() => {
+		async function emptySlots() {
+			let res = appointment?.doctors.values.map((e) =>
+				appointment?.emptyTimeSlots(date.values["date"], e.doctor_id)
+			)
+			if (res !== undefined && appointment?.intervals) {
+				let data = await Promise.all(res)
+				if (data.length > 0) {
+					let sessions = data.map((e) => CalculateOpenSessions(e, appointment?.intervals.values))
+					setDoctorSlots(sessions)
+				}
+			}
+		}
+		emptySlots()
+	}, [date.values, appointment?.appointments.values])
 
 	useEffect(() => {
 		async function emptySlots() {
@@ -165,6 +193,10 @@ export function AppointmentAdd() {
 		})
 	}
 
+	if (doctorSlots.length !== appointment?.doctors.values.length) {
+		return null
+	}
+
 	return (
 		<div>
 			<CustomDialog
@@ -217,9 +249,19 @@ export function AppointmentAdd() {
 							value={doctorID}
 							onChange={doctorHandler}
 							className={classes.doubleInput}>
-							{appointment?.doctors.values.map((doctor) => (
+							{appointment?.doctors.values.map((doctor, i) => (
 								<MenuItem value={doctor.doctor_id} key={"add_doctor_selection_" + doctor.doctor_id}>
-									{doctor.doctor_name}
+									<Typography
+										className={
+											doctorSlots[i].length > 9
+												? classes.empty
+												: doctorSlots[i].length > 0
+												? classes.warn
+												: classes.full
+										}>
+										{doctor.doctor_name}
+										<Chip size="small" label={doctorSlots[i].length} className={classes.chip} />
+									</Typography>
 								</MenuItem>
 							))}
 						</Select>

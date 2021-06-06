@@ -97,7 +97,7 @@ export function AppointmentTable() {
 								{"$" +
 									appointment?.operations
 										?.map((e) => e.diagnosis_price / 100)
-										.reduce((a, b) => a + b, 0)}
+										.reduce((a, b) => a + b)}
 							</TableCell>
 							<TableCell>
 								{appointment.date_.getTime() > date.getTime() ? (
