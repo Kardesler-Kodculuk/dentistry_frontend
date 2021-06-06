@@ -12,7 +12,6 @@ import { AppointmentTable, AppointmentMenu, AppointmentAdd } from "./components"
 import { useAppointment } from "@dentistry/services"
 import AttachMoneyIcon from "@material-ui/icons/AttachMoney"
 
-const drawerWidth = 240
 
 const useStyles = makeStyles((theme) => ({
 	root: {
