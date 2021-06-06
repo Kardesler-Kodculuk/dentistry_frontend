@@ -39,8 +39,6 @@ export async function pathBody<T>(
 	endPoint: string,
 	body: { [key: string]: string | number[] | number }
 ): Promise<T> {
-	console.log(`${API?.url}${endPoint}}`)
-	console.log(body)
 	return await axios
 		.patch<Promise<T>>(`${API?.url}${endPoint}`, body, { withCredentials: true })
 		.then((res) => res.data)
@@ -50,8 +48,6 @@ export async function postBody<T>(
 	endPoint: string,
 	body: { [key: string]: string | number[] | number }
 ): Promise<T> {
-	console.log(`${API?.url}${endPoint}`)
-	console.log(body)
 	return await axios
 		.post<Promise<T>>(`${API?.url}${endPoint}`, body, { withCredentials: true })
 		.then((res) => res.data)

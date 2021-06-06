@@ -126,7 +126,6 @@ export function AppointmentAdd() {
 		let start = appointment?.intervals.values.find((e) => e.time_id === startID)?.timeValues
 		if (start) {
 			date_.setHours(start[0], start[1], 0, 0)
-			console.log(date_)
 			appointment?.addAppointment(
 				doctorID,
 				info.values["name"],
