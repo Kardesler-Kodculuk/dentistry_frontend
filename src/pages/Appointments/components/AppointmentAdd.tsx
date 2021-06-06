@@ -1,19 +1,9 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import { useAppointment,useLoading } from "@dentistry/services"
+import { useAppointment, useLoading } from "@dentistry/services"
 import { CustomDialog } from "@dentistry/components"
-import { useForm, useArray } from "@dentistry/hooks"
-import {
-	Box,
-	Button,
-	TextField,
-	FormControl,
-	makeStyles,
-	Select,
-	MenuItem,
-	Input,
-	Chip,
-	Typography,
-} from "@material-ui/core"
+
+import { useForm } from "@dentistry/hooks"
+import { Box, TextField, makeStyles, Select, MenuItem, Chip, Button } from "@material-ui/core"
 import DateFnsUtils from "@date-io/date-fns"
 import { MuiPickersUtilsProvider, KeyboardDatePicker } from "@material-ui/pickers"
 import { useEffect, useState } from "react"
@@ -50,8 +40,8 @@ const useStyles = makeStyles((theme) => ({
 		color: theme.palette.secondary.dark,
 	},
 }))
-
 export function AppointmentAdd() {
+	const loading = useLoading()
 	const classes = useStyles()
 	const appointment = useAppointment()
 	const [open, setOpen] = useState<boolean>(false)
@@ -192,8 +182,14 @@ export function AppointmentAdd() {
 		})
 	}
 
+
 	if (doctorSlots.length !== appointment?.doctors.values.length) {
-		return null
+		return (
+			<Button disabled variant="contained" color="primary">
+				{" "}
+				Add Appointment
+			</Button>
+		)
 	}
 
 	return (
@@ -250,7 +246,7 @@ export function AppointmentAdd() {
 							className={classes.doubleInput}>
 							{appointment?.doctors.values.map((doctor, i) => (
 								<MenuItem value={doctor.doctor_id} key={"add_doctor_selection_" + doctor.doctor_id}>
-									<Typography
+									<Box
 										className={
 											doctorSlots[i].length > 9
 												? classes.empty
@@ -260,7 +256,7 @@ export function AppointmentAdd() {
 										}>
 										{doctor.doctor_name}
 										<Chip size="small" label={doctorSlots[i].length} className={classes.chip} />
-									</Typography>
+									</Box>
 								</MenuItem>
 							))}
 						</Select>

@@ -26,7 +26,7 @@ export const BackdropProvider = (props: props) => {
 		setOpen(true)
 	}
 
-	const value = { open: handleOpen, close: handleClose }
+	const value = { loading: open, open: handleOpen, close: handleClose }
 
 	return (
 		<BackdropContext.Provider value={value}>
