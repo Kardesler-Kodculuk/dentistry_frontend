@@ -156,23 +156,23 @@ export function AppointmentEdit(props: props) {
 			setLoading_(false)
 		}
 		emptySlots()
-	}, [load, date.values, doctorID])
+	}, [date.values, appointment?.appointments.values, doctorID])
 
 	useEffect(() => {
 		if (slots.length > 0) {
-			let start = slots[0]
-			setStart(start)
+			setStartID(slots[0].time.time_id)
+			setLoad(!load)
 		}
 	}, [slots])
 
 	useEffect(() => {
-		if (start) {
-			setStartID(start.time.time_id)
-			setSlotEnds([...start.ends])
+		let ends = slots.find((slot) => slot.time.time_id === startID)?.ends
+		if (ends !== undefined) {
+			setSlotEnds([...ends])
 		} else {
 			setSlotEnds([])
 		}
-	}, [start])
+	}, [startID, load])
 
 	useEffect(() => {
 		if (slotEnds[0]) {
